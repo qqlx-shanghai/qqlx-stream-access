@@ -10,11 +10,11 @@ import { REST_PORT, RestModule } from "./rest/module";
 
 async function bootstrap () {
     // 对内的微服务
-    const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(TcpModule, {
-        transport: Transport.TCP,
-        options: { host: "0.0.0.0", port: TCP_PORT },
-    });
-    await microservice.listen();
+    // const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(TcpModule, {
+    //     transport: Transport.TCP,
+    //     options: { host: "0.0.0.0", port: TCP_PORT },
+    // });
+    // await microservice.listen();
 
     // 对外的 RESTful API
     const app = await NestFactory.create(RestModule);

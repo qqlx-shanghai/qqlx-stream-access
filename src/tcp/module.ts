@@ -3,15 +3,14 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { DropletHost, DROPLET_SHANGHAI_POSTGRESQL, DROPLET_STREAM_USER } from "qqlx-core";
-import { StreamUserSchema, UserEmailSchema, UserTelecomSchema, UserWeChatSchema } from "qqlx-cdk";
+import { StreamUserAccessGroupSchema, StreamUserAccessSchema } from "qqlx-cdk";
 import { getLocalNetworkIPs, DropletHostRpc, StreamLogRpc } from "qqlx-sdk";
 
 import { DropletModule } from "../_/droplet.module";
-import StreamUserController from "./user.controller";
-import { StreamUserDao, UserEmailDao, UserTelecomDao, UserWeChatDao } from "src/rest/user-access.dao";
-import { StreamUserService } from "src/rest/user.service";
+import StreamUserAccessController from "./user-access.controller";
+import { StreamUserAccessDao, StreamUserAccessGroupDao } from "src/rest/user-access.dao";
 
-export const TCP_PORT = 6003
+export const TCP_PORT = 6004
 
 /** 相关解释
  * @imports 导入一个模块中 exports 的内容，放入公共资源池中
@@ -49,13 +48,13 @@ export const TCP_PORT = 6003
                     password: passwd,
                     database: dbname,
                     logging: false,
-                    entities: [StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema],
+                    entities: [StreamUserAccessGroupSchema, StreamUserAccessSchema],
                 };
             },
         }),
-        TypeOrmModule.forFeature([StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema]),
+        TypeOrmModule.forFeature([StreamUserAccessGroupSchema, StreamUserAccessSchema]),
     ],
-    providers: [DropletHostRpc, StreamLogRpc, StreamUserDao, UserWeChatDao, UserTelecomDao, UserEmailDao, StreamUserService],
-    controllers: [StreamUserController],
+    providers: [DropletHostRpc, StreamLogRpc, StreamUserAccessDao, StreamUserAccessGroupDao],
+    controllers: [StreamUserAccessController],
 })
 export class TcpModule { }

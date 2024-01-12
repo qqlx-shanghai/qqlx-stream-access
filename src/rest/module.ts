@@ -3,17 +3,16 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { DropletHost, DROPLET_SHANGHAI_POSTGRESQL } from "qqlx-core";
-import { StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema } from "qqlx-cdk";
-import { getLocalNetworkIPs, DropletHostRpc, StreamLogRpc } from "qqlx-sdk";
+import { StreamUserSchema, StreamUserAccessGroupSchema, StreamUserAccessSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema } from "qqlx-cdk";
+import { getLocalNetworkIPs, DropletHostRpc, StreamLogRpc, StreamUserRpc } from "qqlx-sdk";
 
 import { DropletModule } from "../_/droplet.module";
-import { StreamUserDao, UserWeChatDao, UserTelecomDao, UserEmailDao } from "./user-access.dao";
-import { StreamUserService } from "./user.service";
+import { StreamUserAccessDao, StreamUserAccessGroupDao } from "./user-access.dao";
+import { StreamAccessService } from "./user-access.service";
 
-import UserEmailController from "./user-email.controller";
-import UserController from "./user.controller";
+import { UserAccessGroupController } from "./user-access-group.controller";
 
-export const REST_PORT = 8003;
+export const REST_PORT = 8004;
 
 /** 相关解释
  * @imports 导入一个模块中 exports 的内容，放入公共资源池中
@@ -45,13 +44,19 @@ export const REST_PORT = 8003;
                     password: passwd,
                     database: dbname,
                     logging: false,
-                    entities: [StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema],
+                    entities: [
+                        StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema,
+                        StreamUserAccessGroupSchema, StreamUserAccessSchema
+                    ],
                 };
             },
         }),
-        TypeOrmModule.forFeature([StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema]),
+        TypeOrmModule.forFeature([
+            StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema,
+            StreamUserAccessGroupSchema, StreamUserAccessSchema
+        ]),
     ],
-    providers: [DropletHostRpc, StreamLogRpc, StreamUserDao, UserWeChatDao, UserTelecomDao, UserEmailDao, StreamUserService],
-    controllers: [UserController, UserEmailController],
+    providers: [DropletHostRpc, StreamLogRpc, StreamUserRpc, StreamUserAccessDao, StreamUserAccessGroupDao],
+    controllers: [UserAccessGroupController],
 })
 export class RestModule { }

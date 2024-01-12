@@ -7,6 +7,19 @@ import { toNumber, toString, StreamUserAccessGroupSchema, StreamUserAccessSchema
 import { getLocalNetworkIPs, PgDao } from "qqlx-sdk";
 
 @Injectable()
+export class StreamUserAccessGroupDao extends PgDao<StreamUserAccessGroup> {
+    constructor(
+        @InjectRepository(StreamUserAccessGroupSchema)
+        private readonly repo: Repository<StreamUserAccessGroup>
+    ) {
+        super({
+            repository: repo,
+            relations_name: RELATIONS_STREAM_USER_ACCESS_GROUP,
+        });
+    }
+}
+
+@Injectable()
 export class StreamUserAccessDao extends PgDao<StreamUserAccess> {
     constructor(
         @InjectRepository(StreamUserAccessSchema)
