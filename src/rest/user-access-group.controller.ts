@@ -1,12 +1,12 @@
-import { Controller, Query, Body, Get, Post, Patch, UseGuards, Req } from "@nestjs/common";
+import { Controller, Query, Body, Get, Post, Patch, UseGuards, Req, Put, Delete } from "@nestjs/common";
 import { createTransport, Transporter } from "nodemailer";
 
 import {
     StreamUser, PATH_STREAM_USER_ACCESS_GROUP,
     postStreamAccessGroupDto, postStreamAccessGroupRes, _Owner,
-    getStreamAccessGroupDto, getStreamAccessGroupDtoRes, ENUM_STREAM_LOG,
+    getStreamAccessGroupDto, getStreamAccessGroupDtoRes, ENUM_STREAM_LOG, putStreamAccessGroupDto, putStreamAccessGroupRes, StreamUserAccessGroup, deleteStreamAccessGroupDto, deleteStreamAccessGroupRes, StreamUserAccess,
 } from "qqlx-core";
-import { toNumber, toString, ToResponse, getPageDto, getConditionMatchStr, UserEmailSchema } from "qqlx-cdk";
+import { toNumber, toString, ToResponse, getPageDto, getConditionMatchStr, UserEmailSchema, getConditionMatchEnum, getConditionMatchInteger, isValid } from "qqlx-cdk";
 import { DropletHostRpc, getLocalNetworkIPs, getRandomString, StreamLogRpc, UserGuard } from "qqlx-sdk";
 
 import { StreamUserAccessDao, StreamUserAccessGroupDao } from "./user-access.dao";
@@ -48,6 +48,33 @@ export class UserAccessGroupController {
         schema.uuid32 = Owner.uuid32
         const group = await this.StreamUserAccessGroupDao.insertOne(schema)
 
+        return null;
+    }
+
+    @Put()
+    async put (@Body('dto') dto: putStreamAccessGroupDto, @Body('Owner') Owner: _Owner): Promise<putStreamAccessGroupRes> {
+
+        const { entity } = dto
+        await this.StreamUserAccessGroupDao.updateOne(entity.id, {
+            name: entity.name,
+            desc: entity.desc,
+            scope: entity.scope,
+            droit: entity.droit,
+            sequence: entity.sequence,
+        })
+        return null;
+    }
+
+    @Delete()
+    async delete (@Body('dto') dto: deleteStreamAccessGroupDto, @Body('Owner') Owner: _Owner): Promise<deleteStreamAccessGroupRes> {
+
+        const { id } = dto
+        const accesses = await this.StreamUserAccessDao.queryAll([
+            getConditionMatchInteger("gid", id)
+        ])
+        for (const access of accesses.list) await this.StreamUserAccessDao.deleteOneById(access.id)
+
+        await this.StreamUserAccessGroupDao.deleteOneById(id)
         return null;
     }
 }
