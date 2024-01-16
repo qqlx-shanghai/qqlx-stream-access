@@ -2,13 +2,14 @@ import { Module, Injectable } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { DropletHost, DROPLET_SHANGHAI_POSTGRESQL, DROPLET_STREAM_USER } from "qqlx-core";
-import { StreamUserAccessGroupSchema, StreamUserAccessSchema } from "qqlx-cdk";
-import { getLocalNetworkIPs, DropletHostRpc, StreamLogRpc } from "qqlx-sdk";
+import { DropletHost, DROPLET_SHANGHAI_POSTGRESQL, DROPLET_STREAM_USER, DROPLET_STREAM_USER_ACCESS } from "qqlx-core";
+import { StreamUserAccessGroupSchema, StreamUserAccessSchema, StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema } from "qqlx-cdk";
+import { getLocalNetworkIPs, DropletHostRpc, StreamLogRpc, StreamUserRpc } from "qqlx-sdk";
 
 import { DropletModule } from "../_/droplet.module";
 import StreamUserAccessController from "./user-access.controller";
 import { StreamUserAccessDao, StreamUserAccessGroupDao } from "src/rest/user-access.dao";
+import { StreamAccessService } from "src/rest/user-access.service";
 
 export const TCP_PORT = 6004
 
@@ -36,8 +37,8 @@ export const TCP_PORT = 6004
                 const droplet: DropletHost = pondDropletMessenger.getSchema();
                 droplet.lan_ip = ips[0].ip;
                 droplet.port = TCP_PORT;
-                pondDropletMessenger.keepAlive(DROPLET_STREAM_USER, droplet); // async
-                console.log(`🌸 qqlx-droplet-host:puting... - ${DROPLET_STREAM_USER}:${droplet.lan_ip}:${droplet.port}`);
+                pondDropletMessenger.keepAlive(DROPLET_STREAM_USER_ACCESS, droplet); // async
+                console.log(`🌸 qqlx-droplet-host:puting... - ${DROPLET_STREAM_USER_ACCESS}:${droplet.lan_ip}:${droplet.port}`);
                 console.log(`🌸 tcp.module.ts at ${TCP_PORT} ✔`);
                 console.log("\n");
 
@@ -49,13 +50,19 @@ export const TCP_PORT = 6004
                     password: passwd,
                     database: dbname,
                     logging: false,
-                    entities: [StreamUserAccessGroupSchema, StreamUserAccessSchema],
+                    entities: [
+                        StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema,
+                        StreamUserAccessGroupSchema, StreamUserAccessSchema
+                    ],
                 };
             },
         }),
-        TypeOrmModule.forFeature([StreamUserAccessGroupSchema, StreamUserAccessSchema]),
+        TypeOrmModule.forFeature([
+            StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema,
+            StreamUserAccessGroupSchema, StreamUserAccessSchema
+        ]),
     ],
-    providers: [DropletHostRpc, StreamLogRpc, StreamUserAccessDao, StreamUserAccessGroupDao],
+    providers: [DropletHostRpc, StreamLogRpc, StreamUserRpc, StreamUserAccessDao, StreamUserAccessGroupDao, StreamAccessService],
     controllers: [StreamUserAccessController],
 })
 export class TcpModule { }

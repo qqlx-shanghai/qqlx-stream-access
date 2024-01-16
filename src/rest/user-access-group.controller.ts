@@ -10,17 +10,19 @@ import { toNumber, toString, ToResponse, getPageDto, getConditionMatchStr, UserE
 import { DropletHostRpc, getLocalNetworkIPs, getRandomString, StreamLogRpc, UserGuard } from "qqlx-sdk";
 
 import { StreamUserAccessDao, StreamUserAccessGroupDao } from "./user-access.dao";
+import { StreamAccessService } from "./user-access.service";
 
 @Controller(PATH_STREAM_USER_ACCESS_GROUP)
 @UseGuards(UserGuard)
 export class UserAccessGroupController {
 
     constructor(
-        //
         private readonly DropletHostRpc: DropletHostRpc,
         private readonly StreamLogRpc: StreamLogRpc,
         private readonly StreamUserAccessDao: StreamUserAccessDao,
-        private readonly StreamUserAccessGroupDao: StreamUserAccessGroupDao
+        private readonly StreamUserAccessGroupDao: StreamUserAccessGroupDao,
+        private readonly StreamAccessService: StreamAccessService,
+
     ) { }
 
     @Get()
@@ -45,9 +47,11 @@ export class UserAccessGroupController {
     async post (@Body('dto') dto: postStreamAccessGroupDto, @Body("Owner") Owner: _Owner): Promise<postStreamAccessGroupRes> {
 
         const { schema } = dto
-        schema.uuid32 = Owner.uuid32
-        const group = await this.StreamUserAccessGroupDao.insertOne(schema)
+        const exist = await this.StreamAccessService.getGroup(schema.scope)
+        if (exist) throw new Error(`重复的权限组 ${schema.scope}`)
 
+        schema.uuid32 = Owner.uuid32
+        const group: StreamUserAccessGroup = await this.StreamUserAccessGroupDao.insertOne(schema)
         return null;
     }
 

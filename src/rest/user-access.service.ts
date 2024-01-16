@@ -15,6 +15,7 @@ import {
     RELATIONS_STREAM_USER_EMAIL,
     ENUM_STREAM_LOG,
     _Owner,
+    StreamUserAccessGroup,
 } from "qqlx-core";
 import {
     toNumber,
@@ -43,5 +44,14 @@ export class StreamAccessService {
         private readonly StreamUserAccessDao: StreamUserAccessDao,
         private readonly StreamUserAccessGroupDao: StreamUserAccessGroupDao
     ) {
+    }
+
+    /** 返回唯一的权限组 */
+    async getGroup (scope: string): Promise<StreamUserAccessGroup | null> {
+        const exists = await this.StreamUserAccessGroupDao.queryAll([
+            getConditionMatchStr('scope', scope)
+        ])
+
+        return exists[0] || null
     }
 }

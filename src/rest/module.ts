@@ -3,8 +3,8 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { DropletHost, DROPLET_SHANGHAI_POSTGRESQL } from "qqlx-core";
-import { StreamUserSchema, StreamUserAccessGroupSchema, StreamUserAccessSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema } from "qqlx-cdk";
-import { getLocalNetworkIPs, DropletHostRpc, StreamLogRpc, StreamUserRpc } from "qqlx-sdk";
+import { StreamUserAccessGroupSchema, StreamUserAccessSchema, StreamUserSchema, UserWeChatSchema, UserTelecomSchema, UserEmailSchema } from "qqlx-cdk";
+import { DropletHostRpc, StreamLogRpc, StreamUserRpc } from "qqlx-sdk";
 
 import { DropletModule } from "../_/droplet.module";
 import { StreamUserAccessDao, StreamUserAccessGroupDao } from "./user-access.dao";
@@ -58,7 +58,7 @@ export const REST_PORT = 8004;
             StreamUserAccessGroupSchema, StreamUserAccessSchema
         ]),
     ],
-    providers: [DropletHostRpc, StreamLogRpc, StreamUserRpc, StreamUserAccessDao, StreamUserAccessGroupDao],
+    providers: [DropletHostRpc, StreamLogRpc, StreamUserRpc, StreamUserAccessDao, StreamUserAccessGroupDao, StreamAccessService],
     controllers: [UserAccessGroupController, UserAccessController],
 })
 export class RestModule { }
